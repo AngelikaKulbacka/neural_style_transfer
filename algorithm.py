@@ -4,6 +4,8 @@ from tensorflow import keras
 from keras.applications import vgg19
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
+import time
+import matplotlib.pyplot as plt
 
 # Open a file dialog to choose the base image
 Tk().withdraw()
@@ -173,18 +175,32 @@ base_image = preprocess_image(base_image_path)
 style_reference_image = preprocess_image(style_reference_image_path)
 combination_image = tf.Variable(preprocess_image(base_image_path))
 
+iteration_losses = []
+iteration_times = []
+
 iterations = 4000
 for i in range(1, iterations + 1):
+    start_time = time.time()  # Początek pomiaru czasu
     loss, grads = compute_loss_and_grads(
         combination_image, base_image, style_reference_image
     )
     optimizer.apply_gradients([(grads, combination_image)])
     if i % 100 == 0:
-        print("Iteration %d: loss=%.2f" % (i, loss))
+        end_time = time.time()  # Koniec pomiaru czasu
+        iteration_time = end_time - start_time
+        print("Iteration %d: loss=%.2f, time=%.2fs" % (i, loss, iteration_time))
+        iteration_losses.append(loss.numpy())
+        iteration_times.append(iteration_time)
         img = deprocess_image(combination_image.numpy())
         fname = result_prefix + "_at_iteration_%d.png" % i
         keras.utils.save_img(fname, img)
 
+# Plotting iteration vs. loss
+plt.plot(range(100, iterations + 1, 100), iteration_losses)
+plt.xlabel('Iteration')
+plt.ylabel('Loss')
+plt.title('Iteration vs. Loss')
+plt.show()
 
 display(Image(result_prefix + "_at_iteration_4000.png"))
 

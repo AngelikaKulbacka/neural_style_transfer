@@ -176,7 +176,6 @@ style_reference_image = preprocess_image(style_reference_image_path)
 combination_image = tf.Variable(preprocess_image(base_image_path))
 
 iteration_losses = []
-iteration_times = []
 
 iterations = 4000
 for i in range(1, iterations + 1):
@@ -190,10 +189,10 @@ for i in range(1, iterations + 1):
         iteration_time = end_time - start_time
         print("Iteration %d: loss=%.2f, time=%.2fs" % (i, loss, iteration_time))
         iteration_losses.append(loss.numpy())
-        iteration_times.append(iteration_time)
         img = deprocess_image(combination_image.numpy())
         fname = result_prefix + "_at_iteration_%d.png" % i
         keras.utils.save_img(fname, img)
+
 
 # Plotting iteration vs. loss
 plt.plot(range(100, iterations + 1, 100), iteration_losses)
@@ -203,9 +202,3 @@ plt.title('Iteration vs. Loss')
 plt.show()
 
 display(Image(result_prefix + "_at_iteration_4000.png"))
-
-# Save trained model
-model.save("trained_model.h5")
-
-# Load saved model
-loaded_model = keras.models.load_model("trained_model.h5")

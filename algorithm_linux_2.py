@@ -159,7 +159,6 @@ def compute_loss_and_grads(combination_image, base_image, style_reference_image)
     grads = tape.gradient(loss, combination_image)
     return loss, grads
 
-
 optimizer = keras.optimizers.SGD(
     keras.optimizers.schedules.ExponentialDecay(
         initial_learning_rate=100.0, decay_steps=100, decay_rate=0.96
